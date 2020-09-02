@@ -65,7 +65,8 @@ def parse_table(table, cache):
         price = parse_gas_price(row)
         index.append(id)
         distance, duration = get_route("Myllyupuro Helsinki", f'{name} Helsinki', cache)
-        total_price = ((7.2 / 100) * distance * 2 * price) + 40 * price if price and distance else None
+        total_price = ((7.2 / 100) * distance * 2 * price) + 40 * price \
+            if price and distance else None
         gas_price = 40 * price if price else None
         data.append([name, price, distance, duration, total_price, gas_price])
     return pd.DataFrame(data, index=index, columns=[

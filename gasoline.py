@@ -1,11 +1,9 @@
-from test import test_data
-
 import requests
 from bs4 import BeautifulSoup
 
-from src.parse import parse_table
-from src.route import get_route
 from src.cache import Cache
+from src.parse import parse_table
+
 
 cache = Cache()
 

@@ -1,10 +1,10 @@
 import json
-from pathlib import Path
 import os
 import sys
-from datetime import timedelta, datetime
+from datetime import datetime
 
-CACHE_EXPIRY = 7 #  Days
+CACHE_EXPIRY = 7  # Days
+
 
 class Cache(object):
     def __init__(self):
@@ -34,7 +34,6 @@ class Cache(object):
         if (now - route_timestamp).days >= CACHE_EXPIRY:
             return None
         return route.get("distance"), route.get("duration")
-
 
     def add_route_to_cache(self, start, end, distance, duration):
         now = datetime.now().isoformat()

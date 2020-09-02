@@ -1,7 +1,9 @@
-import requests
 import json
 
+import requests
+
 from .settings import BING_KEY
+
 
 BASE_URL = 'http://dev.virtualearth.net/REST/v1/Routes'
 
@@ -28,7 +30,7 @@ def get_route(start, end, cache):
     route_data = data["resourceSets"][0]["resources"][0]
 
     distance = route_data["travelDistance"]
-    duration = route_data["travelDuration"]/60
+    duration = route_data["travelDuration"] / 60
 
     cache.add_route_to_cache(start, end, distance, duration)
 
