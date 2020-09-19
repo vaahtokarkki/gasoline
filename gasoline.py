@@ -1,7 +1,10 @@
 from datetime import datetime
 
-from rich import print
+import click
+from rich import box, print
+from rich.console import Console
 from rich.emoji import Emoji
+from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
@@ -29,13 +32,15 @@ def get_style_for_row(index):
 
 def print_stations(stations, amount):
     index = 0
-    grid = Table.grid(padding=(0, 4))
+    grid = Table(box=box.MINIMAL)
     grid.add_column()
-    grid.add_column(justify="left", no_wrap=True)
-    grid.add_column(justify="center")
-    grid.add_row(Text(''), Text('Station name and address'), Text('95E10'),
-                 Text(f'40l {Emoji("car")}'), Text(f'40l {Emoji("fuelpump")}'),
-                 Text("Recorded"), style="grey58")
+    grid.add_column(Text('Station name and address', style="grey58"), justify="left",
+                    no_wrap=True)
+    grid.add_column(Text('95E10', style="grey58"), justify="center")
+    grid.add_column(Text(f'40l {Emoji("car")}', style="grey58"), justify="center")
+    grid.add_column(Text(f'40l {Emoji("fuelpump")}', style="grey58"), justify="center")
+    grid.add_column(Text('Recorded', style="grey58"))
+
     for i, row in stations.head(amount).iterrows():
         style = get_style_for_row(index)
         price_style = style if row["95E10 Price"] < 1.45 else 'red1'
@@ -50,7 +55,7 @@ def print_stations(stations, amount):
             Text(time_str, style=price_style)
         )
         index += 1
-    print(grid)
+    Console().print(grid)
 
 
 def _format_timestamp(timestamp):
@@ -59,8 +64,18 @@ def _format_timestamp(timestamp):
         f'{(now-timestamp).days} day{"s" if((now-timestamp).days > 1) else ""} ago'
 
 
-for provider in providers:
-    print(f'Fetching prices from {provider}')
-    print()
-    stations = provider.fetch_stations()
-    print_stations(stations, 10)
+@click.command()
+@click.option('--count', '-c', default=10, help='Number of stations to display')
+@click.option('--age', '-a', default=5, help='Ignore x days older price records')
+@click.argument('location', nargs=-1)
+def main(count, location, age):
+    """ Fetch cheapest gas station for you based on given location """
+    location = " ".join(location)
+    for provider in providers:
+        print(Panel.fit(f'Fetching prices from {provider} using location {location}'))
+        stations = provider.fetch_stations(location)
+        print_stations(stations, count)
+
+
+if __name__ == '__main__':
+    main()

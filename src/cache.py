@@ -29,8 +29,8 @@ class Cache(object):
         with open(self._get_cache_path(), 'w') as outfile:
             json.dump(self.cache, outfile)
 
-    def update(self, key, value):
-        self.cache.update({key: value})
+    def update(self, obj):
+        self.cache.update(obj)
 
     def get(self, key):
         return self.cache.get(key)
@@ -56,7 +56,7 @@ class RouteCache(object):
     def add_route_to_cache(self, start, end, distance, duration):
         now = datetime.now().isoformat()
         self.routes.update({
-            f'{start}-{end}':  {
+            f'{start}-{end}': {
                 "distance": distance,
                 "duration": duration,
                 "timestamp": now

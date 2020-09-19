@@ -25,9 +25,9 @@ class PolttoaineNet(object):
         self.cache = RouteCache('polttoaine_net')
         self.station_locations = self._fetch_station_locations()
 
-    def fetch_stations(self):
+    def fetch_stations(self, location):
         table = self._fetch_table()
-        parsed = self._parse_table(table)
+        parsed = self._parse_table(table, location)
         self.cache.write_cache()
         return parsed
 
@@ -42,7 +42,7 @@ class PolttoaineNet(object):
         soup = BeautifulSoup(resp.text, 'html.parser')
         return soup.find(id="Hinnat").find("table").find_all("tr")
 
-    def _parse_table(self, table):
+    def _parse_table(self, table, location):
         """
         Parse stations and gas price from table parsed by beatifulsoup
 
@@ -60,8 +60,8 @@ class PolttoaineNet(object):
             price = self._parse_gas_price(row)
             timestamp = self._parse_timestamp(row)
             index.append(station.get("id"))
-            distance, duration = get_route("Myllyupuro Helsinki",
-                                           _get_route_params(station), self.cache)
+            distance, duration = get_route(location, _get_route_params(station),
+                                           self.cache)
             total_price = ((7.2 / 100) * distance * 2 * price) + 40 * price \
                 if price and distance else None
             gas_price = 40 * price if price else None
