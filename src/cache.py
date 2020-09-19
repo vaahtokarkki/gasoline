@@ -4,48 +4,64 @@ import sys
 from datetime import datetime
 
 
-CACHE_EXPIRY = 7  # Days
+ROUTE_CACHE_EXPIRY = 7  # Days
 
 
 class Cache(object):
-    def __init__(self, prefix):
+    def __init__(self, prefix, name):
         self.prefix = prefix
-        self.routes = self._read_cache('routes.json')
-        self.prices = self._read_cache('prices.txt')
+        self.file = name
+        self.cache = self._read_cache()
 
-    def _get_cache_path(self, file):
+    def _get_cache_path(self):
         main_path = os.path.abspath(sys.modules['__main__'].__file__)
         path = "/".join(main_path.split("/")[:-1])
-        return f'{path}/data/{self.prefix}_{file}'
+        return f'{path}/data/{self.prefix}_{self.file}'
 
-    def _read_cache(self, file):
+    def _read_cache(self):
         try:
-            with open(self._get_cache_path(file), mode='r') as file:
+            with open(self._get_cache_path(), mode='r') as file:
                 return json.load(file)
         except FileNotFoundError:
             return {}
 
+    def write_cache(self):
+        with open(self._get_cache_path(), 'w') as outfile:
+            json.dump(self.cache, outfile)
+
+    def update(self, key, value):
+        self.cache.update({key: value})
+
+    def get(self, key):
+        return self.cache.get(key)
+
+
+class RouteCache(object):
+    def __init__(self, prefix):
+        self.prefix = prefix
+        self.routes = Cache(prefix, 'routes.json')
+
     def get_route_from_cache(self, start, end):
-        if f'{start}-{end}' not in self.routes:
+        route = self.routes.get(f'{start}-{end}')
+        if not route:
             return None
 
         now = datetime.now()
 
-        route = self.routes.get(f'{start}-{end}')
         route_timestamp = datetime.fromisoformat(route.get("timestamp"))
-        if (now - route_timestamp).days >= CACHE_EXPIRY:
+        if (now - route_timestamp).days >= ROUTE_CACHE_EXPIRY:
             return None
         return route.get("distance"), route.get("duration")
 
     def add_route_to_cache(self, start, end, distance, duration):
         now = datetime.now().isoformat()
-
-        self.routes[f'{start}-{end}'] = {
-            "distance": distance,
-            "duration": duration,
-            "timestamp": now
-        }
+        self.routes.update({
+            f'{start}-{end}':  {
+                "distance": distance,
+                "duration": duration,
+                "timestamp": now
+            }
+        })
 
     def write_cache(self):
-        with open(self._get_cache_path("routes.json"), 'w') as outfile:
-            json.dump(self.routes, outfile)
+        self.routes.write_cache()

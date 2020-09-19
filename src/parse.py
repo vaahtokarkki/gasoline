@@ -7,7 +7,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from .cache import Cache
+from .cache import RouteCache
 from .route import get_route
 
 
@@ -22,7 +22,7 @@ HEADER = {
 
 class PolttoaineNet(object):
     def __init__(self):
-        self.cache = Cache('polttoaine_net')
+        self.cache = RouteCache('polttoaine_net')
         self.station_locations = self._fetch_station_locations()
 
     def fetch_stations(self):
