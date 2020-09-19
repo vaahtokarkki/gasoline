@@ -3,18 +3,20 @@ import os
 import sys
 from datetime import datetime
 
+
 CACHE_EXPIRY = 7  # Days
 
 
 class Cache(object):
-    def __init__(self):
+    def __init__(self, prefix):
+        self.prefix = prefix
         self.routes = self._read_cache('routes.json')
         self.prices = self._read_cache('prices.txt')
 
     def _get_cache_path(self, file):
         main_path = os.path.abspath(sys.modules['__main__'].__file__)
         path = "/".join(main_path.split("/")[:-1])
-        return f'{path}/data/{file}'
+        return f'{path}/data/{self.prefix}_{file}'
 
     def _read_cache(self, file):
         try:

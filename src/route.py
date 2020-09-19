@@ -24,7 +24,7 @@ def get_route(start, end, cache):
 
     resp = requests.get(BASE_URL, params=_get_url_params(start, end))
     if resp.status_code != 200:
-        print("ERR", resp.status_code)
+        print("ERR", resp.status_code, start, end)
         return None, None
     data = json.loads(resp.content)
     route_data = data["resourceSets"][0]["resources"][0]
