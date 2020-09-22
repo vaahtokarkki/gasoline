@@ -7,7 +7,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from .cache import RouteCache
+from .cache import RouteCache, Cache
 from .route import get_route
 
 
@@ -22,13 +22,14 @@ HEADER = {
 
 class PolttoaineNet(object):
     def __init__(self):
-        self.cache = RouteCache('polttoaine_net')
+        self.route_cache = RouteCache('polttoaine_net')
+        self.stations_cache = Cache('polttoaine_net', 'stations.json')
         self.station_locations = self._fetch_station_locations()
 
     def fetch_stations(self, location):
         table = self._fetch_table()
         parsed = self._parse_table(table, location)
-        self.cache.write_cache()
+        self.route_cache.write_cache()
         return parsed
 
     def __repr__(self):
@@ -61,16 +62,16 @@ class PolttoaineNet(object):
             timestamp = self._parse_timestamp(row)
             index.append(station.get("id"))
             distance, duration = get_route(location, _get_route_params(station),
-                                           self.cache)
+                                           self.route_cache)
             total_price = ((7.2 / 100) * distance * 2 * price) + 40 * price \
                 if price and distance else None
             gas_price = 40 * price if price else None
             name = station.get("name")
             data.append([name, price, distance, duration, total_price, gas_price,
-                         timestamp])
+                         timestamp, station.get('lat'), station.get('lon')])
         return pd.DataFrame(data, index=index, columns=[
             'Name', '95E10 Price', 'Distance', 'Duration', 'Total price', '40l price',
-            'Timestamp'
+            'Timestamp', 'Lat', 'Lon'
         ]).round(3).sort_values("Total price")
 
     def _parse_station_details(self, row):
@@ -142,6 +143,8 @@ class PolttoaineNet(object):
 
     def _fetch_station_locations(self):
         """ Fetch coordinates for stations """
+        if self.stations_cache.cache:
+            return self.stations_cache.cache
         headers = HEADER.copy()
         headers["Referer"] = "https://www.polttoaine.net"
         resp = requests.post('https://www.polttoaine.net/ajax.php', {
@@ -151,11 +154,14 @@ class PolttoaineNet(object):
         }, headers=headers)
         if resp.status_code != 200:
             return {}
-        return {station["id"]: {
+        stations = {station["id"]: {
             "name": station["nimi"],
             "lat": station["lat"],
             "lon": station["lon"]
         } for station in json.loads(resp.text)}
+        self.stations_cache.update(stations)
+        self.stations_cache.write_cache()
+        return stations
 
 
 def _get_route_params(station):
