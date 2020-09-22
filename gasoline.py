@@ -1,3 +1,4 @@
+import urllib.parse
 from datetime import datetime
 
 import click
@@ -48,7 +49,10 @@ def print_stations(stations, amount):
         time_str = _format_timestamp(row["Timestamp"])
         grid.add_row(
             Text(f'{str(index+1)}. ', style=style),
-            Text(name, style=style),
+            Text.from_markup(
+                f'[link=https://maps.google.com?q={urllib.parse.quote_plus(name)}]'
+                f'{name}[/link]', style=style
+            ),
             Text(str(row["95E10 Price"]), style=price_style),
             Text(str(row["Total price"]), style=price_style),
             Text(str(row["40l price"]), style=price_style),
