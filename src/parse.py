@@ -7,8 +7,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from .cache import RouteCache, Cache
-from .route import get_route
+from .cache import Cache
 
 
 URL = "https://www.polttoaine.net/Helsinki"
@@ -22,14 +21,12 @@ HEADER = {
 
 class PolttoaineNet(object):
     def __init__(self):
-        self.route_cache = RouteCache('polttoaine_net')
         self.stations_cache = Cache('polttoaine_net', 'stations.json')
         self.station_locations = self._fetch_station_locations()
 
-    def fetch_stations(self, location):
+    def fetch_stations(self):
         table = self._fetch_table()
-        parsed = self._parse_table(table, location)
-        self.route_cache.write_cache()
+        parsed = self._parse_table(table)
         return parsed
 
     def __repr__(self):
@@ -43,7 +40,7 @@ class PolttoaineNet(object):
         soup = BeautifulSoup(resp.text, 'html.parser')
         return soup.find(id="Hinnat").find("table").find_all("tr")
 
-    def _parse_table(self, table, location):
+    def _parse_table(self, table):
         """
         Parse stations and gas price from table parsed by beatifulsoup
 
@@ -61,18 +58,11 @@ class PolttoaineNet(object):
             price = self._parse_gas_price(row)
             timestamp = self._parse_timestamp(row)
             index.append(station.get("id"))
-            distance, duration = get_route(location, _get_route_params(station),
-                                           self.route_cache)
-            total_price = ((7.2 / 100) * distance * 2 * price) + 40 * price \
-                if price and distance else None
-            gas_price = 40 * price if price else None
             name = station.get("name")
-            data.append([name, price, distance, duration, total_price, gas_price,
-                         timestamp, station.get('lat'), station.get('lon')])
+            data.append([name, price, timestamp, station.get('lat'), station.get('lon')])
         return pd.DataFrame(data, index=index, columns=[
-            'Name', '95E10 Price', 'Distance', 'Duration', 'Total price', '40l price',
-            'Timestamp', 'Lat', 'Lon'
-        ]).round(3).sort_values("Total price")
+            'Name', '95E10 Price', 'Timestamp', 'lat', 'lon'
+        ])
 
     def _parse_station_details(self, row):
         """
@@ -162,12 +152,3 @@ class PolttoaineNet(object):
         self.stations_cache.update(stations)
         self.stations_cache.write_cache()
         return stations
-
-
-def _get_route_params(station):
-    if "lat" in station and "lon" in station:
-        lat = station.get("lat")
-        lon = station.get("lon")
-        return f'{lat},{lon}'
-    name = station.get("name")
-    return f'{name} Helsinki'

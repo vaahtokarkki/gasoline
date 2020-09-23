@@ -9,6 +9,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from src.calc import PriceCalculator
 from src.parse import PolttoaineNet
 
 
@@ -75,10 +76,12 @@ def _format_timestamp(timestamp):
 def main(count, location, age):
     """ Fetch cheapest gas station for you based on given location """
     location = " ".join(location)
+    calculator = PriceCalculator(location, 40, 7.2)
     for provider in providers:
         print(Panel.fit(f'Fetching prices from {provider} using location {location}'))
-        stations = provider.fetch_stations(location)
-        print_stations(stations, count)
+        stations = provider.fetch_stations()
+        calculated_data = calculator.calculate_prices(stations)
+        print_stations(calculated_data, count)
 
 
 if __name__ == '__main__':
