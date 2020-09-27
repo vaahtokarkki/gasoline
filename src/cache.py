@@ -51,17 +51,17 @@ class RouteCache(object):
         route_timestamp = datetime.fromisoformat(route.get("timestamp"))
         if (now - route_timestamp).days >= ROUTE_CACHE_EXPIRY:
             return None
-        return route.get("distance"), route.get("duration")
+        return route.get("distance"), route.get("duration"), route.get("route_path")
 
-    def add_route_to_cache(self, start, end, distance, duration):
+    def add_route_to_cache(self, start, end, distance, duration, route_path):
         now = datetime.now().isoformat()
-        self.routes.update({
-            f'{start}-{end}': {
-                "distance": distance,
-                "duration": duration,
-                "timestamp": now
-            }
-        })
+        payload = {f'{start}-{end}': {
+            "distance": distance,
+            "duration": duration,
+            "timestamp": now,
+            "route_path": route_path
+        }}
+        self.routes.update(payload)
 
     def write_cache(self):
         self.routes.write_cache()

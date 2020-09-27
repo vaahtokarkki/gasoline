@@ -9,11 +9,13 @@ BASE_URL = 'http://dev.virtualearth.net/REST/v1/Routes'
 
 
 def _get_url_params(start, end):
-    return {
+    params = {
         "wayPoint.1": start,
         "wayPoint.2": end,
-        "key": BING_KEY
+        "key": BING_KEY,
+        "routeAttributes": "routePath"
     }
+    return params
 
 
 def get_route(start, end, cache):
@@ -25,13 +27,13 @@ def get_route(start, end, cache):
     resp = requests.get(BASE_URL, params=_get_url_params(start, end))
     if resp.status_code != 200:
         print("ERR", resp.status_code, start, end)
-        return None, None
+        return None, None, None
     data = json.loads(resp.content)
     route_data = data["resourceSets"][0]["resources"][0]
 
     distance = route_data["travelDistance"]
     duration = route_data["travelDuration"] / 60
+    route_path = route_data["routePath"]["line"]["coordinates"]
 
-    cache.add_route_to_cache(start, end, distance, duration)
-
-    return distance, duration
+    cache.add_route_to_cache(start, end, distance, duration, route_path)
+    return distance, duration, route_path
