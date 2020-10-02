@@ -2,8 +2,7 @@ import urllib.parse
 from datetime import datetime
 
 import click
-from rich import box, print
-from rich.console import Console
+from rich import box
 from rich.emoji import Emoji
 from rich.panel import Panel
 from rich.table import Table
@@ -11,6 +10,7 @@ from rich.text import Text
 
 from src.calc import PriceCalculator
 from src.parse import PolttoaineNet
+from src.UI import console
 
 
 providers = [PolttoaineNet()]
@@ -32,7 +32,17 @@ def get_style_for_row(index):
     return 'white'
 
 
-def print_stations(stations, amount):
+def get_maps_link(row, location):
+    name = row["Name"]
+    if not isinstance(location, tuple):
+        return f'[link=https://maps.google.com?q={urllib.parse.quote_plus(name)}]'
+    origin, destination = location
+    url_params = {"origin": origin, "destination": destination, "waypoints": name}
+    return "[link=https://www.google.com/maps/dir/?api=1&" + \
+        f'{urllib.parse.urlencode(url_params)}]'
+
+
+def print_stations(stations, amount, location):
     index = 0
     grid = Table(box=box.MINIMAL)
     grid.add_column()
@@ -52,7 +62,7 @@ def print_stations(stations, amount):
         grid.add_row(
             Text(f'{str(index+1)}. ', style=style),
             Text.from_markup(
-                f'[link=https://maps.google.com?q={urllib.parse.quote_plus(name)}]'
+                get_maps_link(row, location) +
                 f'{name}[/link]', style=style
             ),
             Text(str(row["95E10 Price"]), style=price_style),
@@ -62,7 +72,7 @@ def print_stations(stations, amount):
             Text(f'{row["Distance"]}, {row["Duration"]}', style=price_style)
         )
         index += 1
-    Console().print(grid)
+    console.print(grid)
 
 
 def _format_timestamp(timestamp):
@@ -86,10 +96,21 @@ def main(count, location, age, to, amount, consumption):
         location = (location, to)
     calculator = PriceCalculator(location, amount, consumption)
     for provider in providers:
-        print(Panel.fit(f'Fetching prices from {provider} using location {location}'))
+        location_str = location if not isinstance(location, tuple) else \
+            f'{location[0]} --> {location[1]}'
+        console.print(
+            Panel.fit(f'Fetching prices from {provider} using location {location_str}')
+        )
         stations = provider.fetch_stations()
-        calculated_data = calculator.calculate_prices(stations)
-        print_stations(calculated_data, count)
+        route_data, calculated_data = calculator.calculate_prices(stations)
+        if route_data:
+            console.print(
+                Panel.fit(f'Best route is {route_data["distance"]}km and '
+                          f'{route_data["duration"]}min')
+            )
+        else:
+            console.print(Panel.fit('Best stations for you'))
+        print_stations(calculated_data, count, location)
 
 
 if __name__ == '__main__':
