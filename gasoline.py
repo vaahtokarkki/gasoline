@@ -42,6 +42,7 @@ def print_stations(stations, amount):
     grid.add_column(Text(f'40l {Emoji("car")}', style="grey58"), justify="center")
     grid.add_column(Text(f'40l {Emoji("fuelpump")}', style="grey58"), justify="center")
     grid.add_column(Text('Recorded', style="grey58"))
+    grid.add_column(Text('Dist (m)/Dur (min)', style="grey58"))
 
     for i, row in stations.head(amount).iterrows():
         style = get_style_for_row(index)
@@ -57,7 +58,8 @@ def print_stations(stations, amount):
             Text(str(row["95E10 Price"]), style=price_style),
             Text(str(row["Total price"]), style=price_style),
             Text(str(row["40l price"]), style=price_style),
-            Text(time_str, style=price_style)
+            Text(time_str, style=price_style),
+            Text(f'{row["Distance"]}, {row["Duration"]}', style=price_style)
         )
         index += 1
     Console().print(grid)
@@ -71,12 +73,18 @@ def _format_timestamp(timestamp):
 
 @click.command()
 @click.option('--count', '-c', default=10, help='Number of stations to display')
-@click.option('--age', '-a', default=5, help='Ignore x days older price records')
+@click.option('--age', default=5, help='Ignore x days older price records')  # TODO
+@click.option('--to', '-t', help='Specify an end point for route, instead of back and '
+                                 'forth trip')
+@click.option('--amount', '-a', default=40, help='Amount of gasoline to refuel')
+@click.option('--consumption', '-co', default=7.2, help='Fuel consumption of car')
 @click.argument('location', nargs=-1)
-def main(count, location, age):
+def main(count, location, age, to, amount, consumption):
     """ Fetch cheapest gas station for you based on given location """
     location = " ".join(location)
-    calculator = PriceCalculator(location, 40, 7.2)
+    if to:
+        location = (location, to)
+    calculator = PriceCalculator(location, amount, consumption)
     for provider in providers:
         print(Panel.fit(f'Fetching prices from {provider} using location {location}'))
         stations = provider.fetch_stations()

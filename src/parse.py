@@ -62,7 +62,9 @@ class PolttoaineNet(object):
             data.append([name, price, timestamp, station.get('lat'), station.get('lon')])
         return pd.DataFrame(data, index=index, columns=[
             'Name', '95E10 Price', 'Timestamp', 'lat', 'lon'
-        ])
+        ]) \
+            .dropna(subset=['95E10 Price', 'lat', 'lon']) \
+            .astype({"95E10 Price": float, "lat": float, "lon": float})
 
     def _parse_station_details(self, row):
         """
