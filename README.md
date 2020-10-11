@@ -24,6 +24,27 @@ Example output:
 
 ![Example](docs/gasoline-example.png)
 
+Available parameters are:
+
+```
+Usage: gasoline.py [OPTIONS] [LOCATION]...
+
+  Fetch cheapest gas station for you based on given location
+
+Options:
+  -c, --count INTEGER       Number of stations to display (10)
+  --age INTEGER             Ignore given days older price records (5)
+  -t, --to TEXT             Specify destination for route, instead of
+                            calculating back and forth trip
+
+  -a, --amount INTEGER      Amount of gasoline to refuel (40)
+  -co, --consumption FLOAT  Fuel consumption of car (7.2)
+  -d, --distance INTEGER    Radius from given location to include stations, or
+                            in router mode distance from optimal route.
+                            Defaults to 20km, in route mode 1.5km
+
+  --help                    Show this message and exit.
+```
 
 ## Built with
 

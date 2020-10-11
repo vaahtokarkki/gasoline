@@ -82,12 +82,12 @@ def _format_timestamp(timestamp):
 
 
 @click.command()
-@click.option('--count', '-c', default=10, help='Number of stations to display')
-@click.option('--age', default=5, help='Ignore x days older price records')  # TODO
-@click.option('--to', '-t', help='Specify an end point for route, instead of back and '
-                                 'forth trip')
-@click.option('--amount', '-a', default=40, help='Amount of gasoline to refuel')
-@click.option('--consumption', '-co', default=7.2, help='Fuel consumption of car')
+@click.option('--count', '-c', default=10, help='Number of stations to display (10)')
+@click.option('--age', default=5, help='Ignore given days older price records (5)')
+@click.option('--to', '-t', help='Specify destination for route, instead of calculating '
+                                 'back and forth trip')
+@click.option('--amount', '-a', default=40, help='Amount of gasoline to refuel (40)')
+@click.option('--consumption', '-co', default=7.2, help='Fuel consumption of car (7.2)')
 @click.option('--distance', '-d', default=0, help='Radius from given location to ' +
               'include stations, or in router mode distance from optimal route. ' +
               'Defaults to 20km, in route mode 1.5km')
@@ -95,7 +95,16 @@ def _format_timestamp(timestamp):
 def main(count, location, age, to, amount, consumption, distance):
     """ Fetch cheapest gas station for you based on given location """
     location = " ".join(location)
+    if not location.strip():
+        console.print(
+            Panel.fit('You need to provide location where from fetch stations!')
+        )
+        return
     if to:
+        if not to.strip():
+            console.print(
+                Panel.fit('When using route mode you need to specify destination!')
+            )
         location = (location, to)
         distance = 1.5 if not distance else float(distance)
     else:
