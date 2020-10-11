@@ -10,12 +10,14 @@ from bs4 import BeautifulSoup
 from .cache import Cache
 
 
-URL = "https://www.polttoaine.net/Helsinki"
+URL = "https://www.polttoaine.net/index.php?cmd=haku&act=hae"
+DATA = "'nimi%5B%5D=520&nimi%5B%5D=2&nimi%5B%5D=5&nimi%5B%5D=11&nimi%5B%5D=18&nimi%5B%5D=19&nimi%5B%5D=20&nimi%5B%5D=23&nimi%5B%5D=29&nimi%5B%5D=31&nimi%5B%5D=32&nimi%5B%5D=39&nimi%5B%5D=41&nimi%5B%5D=44&nimi%5B%5D=47&nimi%5B%5D=49&nimi%5B%5D=52&nimi%5B%5D=53&nimi%5B%5D=58&nimi%5B%5D=59&nimi%5B%5D=66&nimi%5B%5D=68&nimi%5B%5D=69&nimi%5B%5D=77&nimi%5B%5D=78&nimi%5B%5D=84&nimi%5B%5D=85&nimi%5B%5D=88&nimi%5B%5D=90&nimi%5B%5D=92&nimi%5B%5D=99&nimi%5B%5D=104&nimi%5B%5D=105&nimi%5B%5D=106&nimi%5B%5D=107&nimi%5B%5D=113&nimi%5B%5D=124&nimi%5B%5D=125&nimi%5B%5D=130&nimi%5B%5D=136&nimi%5B%5D=142&nimi%5B%5D=143&nimi%5B%5D=144&nimi%5B%5D=149&nimi%5B%5D=160&nimi%5B%5D=161&nimi%5B%5D=162&nimi%5B%5D=163&nimi%5B%5D=168&nimi%5B%5D=171&nimi%5B%5D=177&nimi%5B%5D=184&nimi%5B%5D=185&nimi%5B%5D=186&nimi%5B%5D=188&nimi%5B%5D=195&nimi%5B%5D=527&nimi%5B%5D=221&nimi%5B%5D=222&nimi%5B%5D=227&nimi%5B%5D=228&nimi%5B%5D=229&nimi%5B%5D=233&nimi%5B%5D=238&nimi%5B%5D=240&nimi%5B%5D=241&nimi%5B%5D=245&nimi%5B%5D=250&nimi%5B%5D=252&nimi%5B%5D=263&nimi%5B%5D=264&nimi%5B%5D=267&nimi%5B%5D=271&nimi%5B%5D=273&nimi%5B%5D=283&nimi%5B%5D=284&nimi%5B%5D=289&nimi%5B%5D=291&nimi%5B%5D=528&nimi%5B%5D=292&nimi%5B%5D=293&nimi%5B%5D=296&nimi%5B%5D=302&nimi%5B%5D=306&nimi%5B%5D=318&nimi%5B%5D=530&nimi%5B%5D=329&nimi%5B%5D=333&nimi%5B%5D=338&nimi%5B%5D=354&nimi%5B%5D=365&nimi%5B%5D=369&nimi%5B%5D=374&nimi%5B%5D=381&nimi%5B%5D=385&nimi%5B%5D=197&nimi%5B%5D=388&nimi%5B%5D=398&nimi%5B%5D=416&nimi%5B%5D=419&nimi%5B%5D=420&nimi%5B%5D=423&haku=Hae+asemat'"  # noqa: E501
 
 HEADER = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like " +
                   "Gecko) Chrome/50.0.2661.75 Safari/537.36",
     "X-Requested-With": "XMLHttpRequest",
+    "Content-Type": "application/x-www-form-urlencoded"
 }
 
 
@@ -36,7 +38,7 @@ class PolttoaineNet(object):
         return self.__repr__()
 
     def _fetch_table(self):
-        resp = requests.get(URL, headers=HEADER)
+        resp = requests.post(URL, headers=HEADER, data=DATA)
         soup = BeautifulSoup(resp.text, 'html.parser')
         return soup.find(id="Hinnat").find("table").find_all("tr")
 
@@ -128,7 +130,7 @@ class PolttoaineNet(object):
         for cell in row.find_all("td"):
             if not cell.attrs:
                 continue
-            if any(key in cell.attrs.get("class") for key in ["Pvm", "PvmTD"]):
+            if not set(cell.attrs.get("class")).isdisjoint(set(["Pvm", "PvmTd"])):
                 day, month = cell.contents[0][:-1].split(".")
                 return datetime.now().replace(month=int(month), day=int(day))
         return None

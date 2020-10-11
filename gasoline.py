@@ -88,13 +88,20 @@ def _format_timestamp(timestamp):
                                  'forth trip')
 @click.option('--amount', '-a', default=40, help='Amount of gasoline to refuel')
 @click.option('--consumption', '-co', default=7.2, help='Fuel consumption of car')
+@click.option('--distance', '-d', default=0, help='Radius from given location to ' +
+              'include stations, or in router mode distance from optimal route. ' +
+              'Defaults to 20km, in route mode 1.5km')
 @click.argument('location', nargs=-1)
-def main(count, location, age, to, amount, consumption):
+def main(count, location, age, to, amount, consumption, distance):
     """ Fetch cheapest gas station for you based on given location """
     location = " ".join(location)
     if to:
         location = (location, to)
-    calculator = PriceCalculator(location, amount, consumption)
+        distance = 1.5 if not distance else float(distance)
+    else:
+        distance = 20 if not distance else float(distance)
+    age = 5 if age < 0 or age > 5 else age
+    calculator = PriceCalculator(location, amount, consumption, distance, age)
     for provider in providers:
         location_str = location if not isinstance(location, tuple) else \
             f'{location[0]} --> {location[1]}'
