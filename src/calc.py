@@ -126,6 +126,8 @@ class PriceCalculator(object):
 
     def calc_from_point(self, stations):
         filtered_stations = self.filter_stations(stations, filter_by_distance=True)
+        if filtered_stations.empty:
+            return None, pd.DataFrame()
         return None, filtered_stations.merge(
             filtered_stations.apply(self.calc, axis=1), left_index=True, right_index=True
         )
@@ -134,11 +136,11 @@ class PriceCalculator(object):
         route_data, updated_stations = self.calc_from_point(stations) \
             if not isinstance(self.location, tuple) else self.calc_via_route(stations)
         self.route_cache.write_cache()
-        updated_stations = updated_stations \
+        if updated_stations.empty:
+            return route_data, pd.DataFrame()
+        return route_data, updated_stations \
             .round({"Total price": 2, f"{self.amount}l price": 2, "95E10 Price": 3}) \
             .sort_values("Total price")
-
-        return route_data, updated_stations
 
 
 def _project(element):

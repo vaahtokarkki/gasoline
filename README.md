@@ -52,3 +52,4 @@ Options:
 * [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) for parsing HTML
 * [Bing Maps](https://docs.microsoft.com/en-us/bingmaps/rest-services/routes/) for distance calculation
 * [Rich](https://github.com/willmcgugan/rich) for stylizing output
+* [Shapely](https://github.com/Toblerity/Shapely) for distance calculation

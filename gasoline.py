@@ -124,9 +124,11 @@ def main(count, location, age, to, amount, consumption, distance):
                 Panel.fit(f'Best route is {route_data["distance"]}km and '
                           f'{route_data["duration"]}min')
             )
+        if calculated_data.empty:
+            console.print(Panel.fit('No stations found :('))
         else:
             console.print(Panel.fit('Best stations for you'))
-        print_stations(calculated_data, count, location)
+            print_stations(calculated_data, count, location)
 
 
 if __name__ == '__main__':
