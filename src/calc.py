@@ -56,8 +56,8 @@ class PriceCalculator(object):
             * price if price and distance else None
         gas_price = self.amount * price if price else None
         return pd.Series({
-            "Distance": f'{round(distance * 2)}km',
-            "Duration": f'{round(duration * 2)}min',
+            "Distance": f'{round(distance * 2)}',
+            "Duration": f'{round(duration * 2)}',
             "Total price": total_price,
             f"{self.amount}l price": gas_price
         })

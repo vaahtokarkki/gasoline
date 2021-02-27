@@ -6,6 +6,8 @@ from datetime import datetime
 
 ROUTE_CACHE_EXPIRY = 7  # Days
 
+CACHE_FOLDER = 'data'
+
 
 class Cache(object):
     def __init__(self, prefix, name):
@@ -13,10 +15,14 @@ class Cache(object):
         self.file = name
         self.cache = self._read_cache()
 
-    def _get_cache_path(self):
+    def _get_cache_folder_path(self):
         main_path = os.path.abspath(sys.modules['__main__'].__file__)
         path = "/".join(main_path.split("/")[:-1])
-        return f'{path}/data/{self.prefix}_{self.file}'
+        return f'{path}/{CACHE_FOLDER}'
+
+    def _get_cache_path(self):
+        path = self._get_cache_folder_path()
+        return f'{path}/{self.prefix}_{self.file}'
 
     def _read_cache(self):
         try:
@@ -26,7 +32,9 @@ class Cache(object):
             return {}
 
     def write_cache(self):
-        with open(self._get_cache_path(), 'w') as outfile:
+        if not os.path.exists(self._get_cache_folder_path()):
+            os.makedirs(self._get_cache_folder_path())
+        with open(self._get_cache_path(), 'w+') as outfile:
             json.dump(self.cache, outfile)
 
     def update(self, obj):

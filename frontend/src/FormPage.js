@@ -1,0 +1,78 @@
+import React from "react";
+import { Button, Form, Segment, Input, Message } from "semantic-ui-react";
+
+const FormPage = ({ onSubmit, onChange, loading, formData, error }) => {
+  const onFormChange = (e) => {
+    const updatedData = {
+      ...formData,
+      [e.target.name]: e.target.value,
+    };
+    onChange(updatedData);
+  };
+
+  return (
+    <Segment>
+      {error ? (
+        <Message error>
+          <Message.Header>Error</Message.Header>
+          <Message.Content>{error}</Message.Content>
+        </Message>
+      ) : null}
+      <Form loading={loading.form}>
+        <Form.Field>
+          <label>Location</label>
+          <Input
+            icon="crosshairs"
+            loading={loading.location}
+            iconPosition="left"
+            name="from"
+            value={formData.from}
+            onChange={onFormChange}
+            placeholder="Location"
+          />
+        </Form.Field>
+        <Form.Field>
+          <label>Max days old prices</label>
+          <Input
+            name="age"
+            value={formData.age}
+            onChange={onChange}
+            placeholder="5"
+          />
+        </Form.Field>
+        <Form.Field>
+          <label>Max distance</label>
+          <Input
+            name="distance"
+            value={formData.distance}
+            onChange={onChange}
+            placeholder="20"
+          />
+        </Form.Field>
+        <Form.Field>
+          <label>Fuel consumption of car</label>
+          <Input
+            name="consumption"
+            value={formData.consumption}
+            onChange={onChange}
+            placeholder="7.2"
+          />
+        </Form.Field>
+        <Form.Field>
+          <label>Amount to refill (litre)</label>
+          <Input
+            name="amount"
+            value={formData.amount}
+            onChange={onChange}
+            placeholder="40"
+          />
+        </Form.Field>
+        <Button size="large" onClick={() => onSubmit(formData)} primary>
+          Find stations
+        </Button>
+      </Form>
+    </Segment>
+  );
+};
+
+export default FormPage;
