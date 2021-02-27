@@ -1,11 +1,12 @@
-from fastapi import Request, FastAPI
-from src.calc import PriceCalculator
-from src.parse import PolttoaineNet
-from datetime import datetime
 import json
+from fastapi import Request, FastAPI
+from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
+from src.calc import PriceCalculator
+from src.parse import PolttoaineNet
 from src.settings import DEV
 
 app = FastAPI()
