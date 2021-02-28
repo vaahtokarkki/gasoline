@@ -8,7 +8,7 @@ import { usePosition } from "./hooks";
 import geocode from "./geocode";
 
 const BASE_URL =
-  process.env.NODE_ENV === "development" ? "http://localhost:8000/api" : "/api";
+  process.env.NODE_ENV === "development" ? "http://localhost:8000/api" : "/api/";
 
 const api = axios.create({ baseURL: BASE_URL });
 
