@@ -4,11 +4,13 @@ import { Container, Divider, Header } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import FormPage from "./FormPage";
 import StationsList from "./StationList";
-import { usePosition } from "./hooks";
+import { usePosition, useInterval } from "./hooks";
 import geocode from "./geocode";
 
 const BASE_URL =
-  process.env.NODE_ENV === "development" ? "http://localhost:8000/api" : `https://${new URL(window.location).hostname}/api`;
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:8000/api"
+    : `https://${new URL(window.location).hostname}/api`;
 
 const api = axios.create({ baseURL: BASE_URL });
 
@@ -36,10 +38,12 @@ const App = () => {
   });
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState(INITAL_STATE);
+  const [interval, setIntervalValue] = useState(null);
+  const [progress, setProgress] = useState(0);
   const { position } = usePosition();
 
   const fetchLocation = async () => {
-    if (formData.location) return;
+    if (formData.location || stations.length) return;
     setLoading({ ...loading, location: true });
     const from = await geocode(position.latitude, position.longitude);
     setFormData({ ...formData, from });
@@ -50,16 +54,28 @@ const App = () => {
     fetchLocation();
   }, [position]); //eslint-disable-line
 
+  useInterval(
+    () => setProgress((currentProgress) => currentProgress + 1),
+    interval
+  );
+
+  const resetFormLoading = () => {
+    setIntervalValue(null);
+    setProgress(0);
+    setLoading({ ...loading, form: false });
+  };
+
   const fetchStations = async (formData) => {
     try {
       setLoading({ ...loading, form: true });
-      const { data } = await api.post("/", formData);
+      setIntervalValue(40 * 10);
+      const { data } = await api.post("", formData);
       setStations(data);
-      setLoading({ ...loading, form: false });
+      resetFormLoading();
     } catch (e) {
       console.log(e);
       setError(e.toString());
-      setLoading({ ...loading, form: false });
+      resetFormLoading();
     }
   };
 
@@ -87,6 +103,7 @@ const App = () => {
           onSubmit={fetchStations}
           onChange={setFormData}
           error={error}
+          progress={progress}
           loading={loading}
         />
       </>

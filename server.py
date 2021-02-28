@@ -4,6 +4,7 @@ from datetime import datetime
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 
 from src.calc import PriceCalculator
 from src.parse import PolttoaineNet
@@ -46,6 +47,23 @@ def stationToJSON(s):
         "distance": s["Distance"],
         "durations": s["Duration"],
     }
+
+# Hack
+
+
+@app.get('/manifest.json')
+async def manifest():
+    return FileResponse('frontend/build/manifest.json')
+
+
+@app.get('/favicon.ico')
+async def favicon():
+    return FileResponse('frontend/build/favicon.ico')
+
+
+@app.get('/logo.png')
+async def logo():
+    return FileResponse('frontend/build/logo.png')
 
 
 @app.get("/")

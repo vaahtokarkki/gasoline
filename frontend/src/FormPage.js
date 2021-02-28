@@ -1,7 +1,7 @@
 import React from "react";
-import { Button, Form, Segment, Input, Message } from "semantic-ui-react";
+import { Button, Form, Segment, Input, Message, Progress } from "semantic-ui-react";
 
-const FormPage = ({ onSubmit, onChange, loading, formData, error }) => {
+const FormPage = ({ onSubmit, onChange, loading, formData, error, progress }) => {
   const onFormChange = (e) => {
     const updatedData = {
       ...formData,
@@ -9,6 +9,7 @@ const FormPage = ({ onSubmit, onChange, loading, formData, error }) => {
     };
     onChange(updatedData);
   };
+  console.log(progress)
 
   return (
     <Segment>
@@ -67,9 +68,11 @@ const FormPage = ({ onSubmit, onChange, loading, formData, error }) => {
             placeholder="40"
           />
         </Form.Field>
-        <Button size="large" onClick={() => onSubmit(formData)} primary>
-          Find stations
-        </Button>
+        { !loading.form
+          ? <Button size="large" onClick={() => onSubmit(formData)} primary>
+            Find stations
+          </Button>
+          : <Progress percent={progress} /> }
       </Form>
     </Segment>
   );
