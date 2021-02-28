@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Segment, List } from "semantic-ui-react";
+import { Button, Segment, List, Table } from "semantic-ui-react";
 
 function getRouteUrl(origin, dest) {
   return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}`;
@@ -14,11 +14,11 @@ function resolveColor(value) {
 const ListItem = ({ item, amount, origin }) => (
   <List.Item key={item.name}>
     <List.Content floated="right"></List.Content>
-    <List.Content style={{padding: '.75rem 0 0 0'}}>
+    <List.Content style={{ padding: ".75rem 0 0 0" }}>
       <div style={{ display: "flex" }}>
-        <div style={{ width: "60%", paddingRight: 20 }}>
+        <div style={{ width: "70%", paddingRight: 20 }}>
           <b>{item.name}</b> ({item.price_age})
-          <div style={{ margin: "10px 0" }}>
+          <div style={{ margin: "5px 0" }}>
             <Button
               size="tiny"
               onClick={() => {
@@ -30,24 +30,34 @@ const ListItem = ({ item, amount, origin }) => (
           </div>
         </div>
         <div>
-          <div>
-            95E10:{" "}
-            <span
-              style={{
-                fontWeight: "bold",
-                color: resolveColor(item["95E10/l"]),
-              }}
-            >
-              {item["95E10/l"]}e/l
-            </span>
-          </div>
-          <div>
-            {amount}l (car): {item.total_price}e
-          </div>
-          <div>
-            {amount}l (gas): {item.only_gas}e
-          </div>
-          <div>{item.distance}km, {item.durations}min</div>
+          <Table celled unstackable compact basic='very' >
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell>95E10</Table.Cell>
+                <Table.Cell
+                  style={{
+                    fontWeight: "bold",
+                    color: resolveColor(item["95E10/l"]),
+                  }}
+                >
+                  {item["95E10/l"]}e/l
+                </Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>{amount}l (car)</Table.Cell>
+                <Table.Cell>{item.total_price}e</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>{amount}l</Table.Cell>
+                <Table.Cell>{item.only_gas}e</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell colSpan="2">
+                  {item.distance}km, {item.durations}min
+                </Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
         </div>
       </div>
     </List.Content>

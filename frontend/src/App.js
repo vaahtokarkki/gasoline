@@ -5,7 +5,7 @@ import "semantic-ui-css/semantic.min.css";
 import FormPage from "./FormPage";
 import StationsList from "./StationList";
 import { usePosition } from "./hooks";
-import geocode from "./geoCode";
+import geocode from "./geocode";
 
 const BASE_URL =
   process.env.NODE_ENV === "development" ? "http://localhost:8000/api" : "/api";
@@ -77,9 +77,9 @@ const App = () => {
       <>
         <Header as="h3">Usage</Header>
         <p>
-          A container is a fixed width element that wraps your site's content.
-          It remains a constant size and uses <b>margin</b> to center.
-          Containers are the simplest way to center page content inside a grid.
+          Find cheapest gas station near you. Cheapest total price will include{" "}
+          the price of gasoline as well as the price of driving to the stations{" "}
+          and back.
         </p>
         <Divider hidden />
         <FormPage

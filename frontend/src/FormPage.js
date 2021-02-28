@@ -28,11 +28,11 @@ const FormPage = ({ onSubmit, onChange, loading, formData, error }) => {
             name="from"
             value={formData.from}
             onChange={onFormChange}
-            placeholder="Location"
+            placeholder="Street, City"
           />
         </Form.Field>
         <Form.Field>
-          <label>Max days old prices</label>
+          <label>Max age of price (days)</label>
           <Input
             name="age"
             value={formData.age}
@@ -41,7 +41,7 @@ const FormPage = ({ onSubmit, onChange, loading, formData, error }) => {
           />
         </Form.Field>
         <Form.Field>
-          <label>Max distance</label>
+          <label>Max distance to the station</label>
           <Input
             name="distance"
             value={formData.distance}
@@ -50,7 +50,7 @@ const FormPage = ({ onSubmit, onChange, loading, formData, error }) => {
           />
         </Form.Field>
         <Form.Field>
-          <label>Fuel consumption of car</label>
+          <label>Fuel consumption of car (l/100km)</label>
           <Input
             name="consumption"
             value={formData.consumption}
