@@ -98,7 +98,7 @@ const StationsList = ({ stations, amount, clearData, origin }) => {
           {stations
             .sort((a, b) => a[sortBy] - b[sortBy])
             .map((s) => (
-              <ListItem item={s} amount={amount} origin={origin} />
+              <ListItem key={s.name} item={s} amount={amount} origin={origin} />
             ))}
         </List>
       </Segment>

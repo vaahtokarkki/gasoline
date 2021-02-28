@@ -9,7 +9,6 @@ const FormPage = ({ onSubmit, onChange, loading, formData, error, progress }) =>
     };
     onChange(updatedData);
   };
-  console.log(progress)
 
   return (
     <Segment>
