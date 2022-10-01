@@ -1,6 +1,6 @@
 # Gasoline
 
-Find cheapest gas station near you, in Finland.
+Find least exprensive gas station near you, in Finland.
 
 ## How it works
 
